@@ -701,6 +701,16 @@ jobs:
             yarn generate-types
             git diff --exit-code
 
+      - run:
+          name: Move coverage
+          command: |
+            mv js_modules/dagit/coverage/lcov.info js_modules/dagit/coverage/dagit.lcov.${CIRCLE_BUILD_NUM}.info
+
+      - persist_to_workspace:
+          root: js_modules/dagit/coverage
+          paths:
+            - dagit.lcov.*
+
   # We are using the machine executor in order to avoid the pitfalls catalogued at
   # https://circleci.com/docs/2.0/building-docker-images/#separation-of-environments.
   # Specifically, we want to be able to network the Docker containers created by the
