@@ -34,7 +34,19 @@ Intro Tutorial
   intro_tutorial/multiple_outputs
   intro_tutorial/reusable_solids
   intro_tutorial/unittesting
-  intro_tutorial/dagstermill
+
+Dagstermill
+================
+
+.. toctree::
+  :maxdepth: 1
+  :name: Dagstermill Tutorial
+
+  dagstermill/hello_world
+  dagstermill/output_notebook
+  dagstermill/unit_testing
+  dagstermill/inputs_and_outputs
+  dagstermill/context_and_resources
 
 API Reference
 ================
