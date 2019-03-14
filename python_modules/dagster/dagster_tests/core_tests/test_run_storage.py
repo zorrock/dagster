@@ -35,7 +35,7 @@ def test_inmemory_persist_one_run():
 def do_test_single_write_read(run_storage):
     run_id = 'some_run_id'
     current_time = time.time()
-    run_storage.write_dagster_run_meta(
+    run_storage.register_dagster_run_meta(
         DagsterRunMeta(run_id=run_id, timestamp=current_time, pipeline_name='some_pipeline')
     )
 

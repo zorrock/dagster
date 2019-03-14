@@ -349,7 +349,7 @@ def yield_pipeline_execution_context(pipeline_def, environment_dict, run_config)
     from .runs import DagsterRunMeta
     import time
 
-    run_config.run_storage.write_dagster_run_meta(
+    run_config.run_storage.register_dagster_run_meta(
         DagsterRunMeta(
             run_id=run_config.run_id, timestamp=time.time(), pipeline_name=pipeline_def.name
         )

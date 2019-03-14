@@ -44,7 +44,7 @@ class LocalTempFileStore(FileStore):
 
         target_path = self.newmethod97(path_comps)
 
-        with open(target_path, 'wb') as ff:
+        with open(target_path, 'ab+') as ff:
             yield ff
 
     def newmethod97(self, path_comps):
@@ -54,7 +54,6 @@ class LocalTempFileStore(FileStore):
         mkdir_p(target_dir)
 
         target_path = os.path.join(target_dir, path_list[-1])
-        check.invariant(not os.path.exists(target_path))
         return target_path
 
     @contextmanager

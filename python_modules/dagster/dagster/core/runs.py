@@ -62,7 +62,7 @@ class FileStorageBasedRunStorage(RunStorage):
         with self.writeable_run_file(*([run_id] + list(path_comps))) as ff:
             yield ff
 
-    def write_dagster_run_meta(self, dagster_run_meta):
+    def register_dagster_run_meta(self, dagster_run_meta):
         check.inst_param(dagster_run_meta, 'dagster_run_meta', DagsterRunMeta)
         with self._file_store.writeable_binary_stream('runmeta.jsonl') as ff:
             ff.write((json.dumps(dagster_run_meta._asdict()) + '\n').encode('utf-8'))
@@ -106,7 +106,7 @@ class InMemoryRunStorage(RunStorage):
     def __init__(self):
         self._run_metas = OrderedDict()
 
-    def write_dagster_run_meta(self, dagster_run_meta):
+    def register_dagster_run_meta(self, dagster_run_meta):
         check.inst_param(dagster_run_meta, 'dagster_run_meta', DagsterRunMeta)
         self._run_metas[dagster_run_meta.run_id] = dagster_run_meta
 
