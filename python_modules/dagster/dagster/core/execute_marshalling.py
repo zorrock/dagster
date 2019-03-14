@@ -66,7 +66,7 @@ def execute_marshalling(
         ),
     )
 
-    intermediates_manager = run_config.executor_config.inmem_intermediates_manager
+    intermediates_manager = run_config.intermediates_manager
 
     with yield_pipeline_execution_context(
         pipeline, environment_dict, run_config
@@ -87,7 +87,9 @@ def execute_marshalling(
                     # dep in subset, we're fine
                     continue
 
-                if intermediates_manager.has_value(step_input.prev_output_handle):
+                if intermediates_manager.has_value(
+                    pipeline_context.run_id, step_input.prev_output_handle
+                ):
                     # dep preset in intermediates manager
                     continue
 
@@ -183,7 +185,9 @@ def marshal_outputs(
                 if step_output_handle not in successful_outputs:
                     continue
 
-                output_value = intermediates_manager.get_value(step_output_handle)
+                output_value = intermediates_manager.read_step_output(
+                    pipeline_context.run_id, step_output_handle
+                )
                 pipeline_context.persistence_strategy.write_value(
                     step_output.runtime_type.serialization_strategy,
                     marshalled_output.marshalling_key,
@@ -201,4 +205,7 @@ def unmarshal_inputs(inputs_to_marshal, execution_plan, pipeline_context, interm
                 input_value = pipeline_context.persistence_strategy.read_value(
                     step_input.runtime_type.serialization_strategy, marshalling_key
                 )
-                intermediates_manager.set_value(step_output_handle, input_value)
+                intermediates_manager.set_value(
+                    pipeline_context.run_id, step_output_handle, input_value
+                )
+

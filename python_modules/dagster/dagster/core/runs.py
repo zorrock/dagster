@@ -41,19 +41,20 @@ class RunStorage:
         return list_pull(self.get_run_metas(), 'run_id')
 
 
-from .files import LocalTempFileStore
-
-
 class FileStorageBasedRunStorage(RunStorage):
     @staticmethod
     def default():
         return FileStorageBasedRunStorage(base_run_directory())
 
     def __init__(self, base_dir):
+        from .execution_plan.intermediates_manager import FileSystemIntermediateManager
+        from .files import LocalTempFileStore
+
         self._base_dir = check.str_param(base_dir, 'base_dir')
         mkdir_p(self._base_dir)
         self._meta_file = meta_file(self._base_dir)
         self._file_store = LocalTempFileStore(self._base_dir)
+        self.intermediates_manager = FileSystemIntermediateManager(self._file_store)
 
     def register_dagster_run_meta(self, dagster_run_meta):
         check.inst_param(dagster_run_meta, 'dagster_run_meta', DagsterRunMeta)
@@ -97,7 +98,10 @@ class FileStorageBasedRunStorage(RunStorage):
 
 class InMemoryRunStorage(RunStorage):
     def __init__(self):
+        from .execution_plan.intermediates_manager import InMemoryIntermediatesManager
+
         self._run_metas = OrderedDict()
+        self.intermediates_manager = InMemoryIntermediatesManager()
 
     def register_dagster_run_meta(self, dagster_run_meta):
         check.inst_param(dagster_run_meta, 'dagster_run_meta', DagsterRunMeta)

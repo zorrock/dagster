@@ -76,7 +76,7 @@ def start_inprocess_executor(
 
             step_context = pipeline_context.for_step(step)
 
-            if not intermediates_manager.all_inputs_covered(step):
+            if not intermediates_manager.all_inputs_covered(pipeline_context.run_id, step):
                 expected_outputs = [ni.prev_output_handle for ni in step.step_inputs]
 
                 step_context.log.info(
@@ -87,7 +87,7 @@ def start_inprocess_executor(
                 )
                 continue
 
-            input_values = _create_input_values(step, intermediates_manager)
+            input_values = _create_input_values(step_context, intermediates_manager)
 
             for step_event in check.generator(
                 execute_step_in_memory(step_context, input_values, intermediates_manager)
@@ -102,13 +102,16 @@ def start_inprocess_executor(
                 yield step_event
 
 
-def _create_input_values(step, intermediates_manager):
+def _create_input_values(step_context, intermediates_manager):
+    check.inst_param(step_context, 'step_context', SystemStepExecutionContext)
     check.inst_param(intermediates_manager, 'intermediates_manager', IntermediatesManager)
 
     input_values = {}
-    for step_input in step.step_inputs:
+    for step_input in step_context.step.step_inputs:
         prev_output_handle = step_input.prev_output_handle
-        input_value = intermediates_manager.get_value(prev_output_handle)
+        input_value = intermediates_manager.read_step_output(
+            step_context.run_id, prev_output_handle
+        )
         input_values[step_input.name] = input_value
     return input_values
 
@@ -224,11 +227,12 @@ def _create_step_event(step_context, step_output_value, intermediates_manager):
             step=step, output_name=step_output_value.output_name
         )
 
-        intermediates_manager.set_value(step_output_handle, value)
+        intermediates_manager.set_value(step_context.run_id, step_output_handle, value)
 
         return ExecutionStepEvent.step_output_event(
             step_context=step_context,
             step_output_data=StepOutputData(
+                run_id=step_context.run_id,
                 step_output_handle=step_output_handle,
                 value_repr=repr(value),
                 intermediates_manager=intermediates_manager,

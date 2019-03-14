@@ -26,16 +26,8 @@ class ExecutorConfig:
 
 
 class InProcessExecutorConfig(ExecutorConfig):
-    def __init__(self, throw_on_user_error=True, inmem_intermediates_manager=None):
-        from .execution_plan.intermediates_manager import InMemoryIntermediatesManager
-
+    def __init__(self, throw_on_user_error=True):
         self.throw_on_user_error = check.bool_param(throw_on_user_error, 'throw_on_user_error')
-        self.inmem_intermediates_manager = check.opt_inst_param(
-            inmem_intermediates_manager,
-            'inmem_intermediates_manager',
-            InMemoryIntermediatesManager,
-            InMemoryIntermediatesManager(),
-        )
 
 
 class MultiprocessExecutorConfig(ExecutorConfig):
@@ -73,6 +65,10 @@ class RunConfig(
                 run_storage, 'run_storage', RunStorage, InMemoryRunStorage()
             ),
         )
+
+    @property
+    def intermediates_manager(self):
+        return self.run_storage.intermediates_manager
 
     @staticmethod
     def nonthrowing_in_process():

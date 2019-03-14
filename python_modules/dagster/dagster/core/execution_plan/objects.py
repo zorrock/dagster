@@ -35,7 +35,8 @@ class SingleOutputStepCreationData(namedtuple('SingleOutputStepCreationData', 's
 
 
 class StepOutputData:
-    def __init__(self, step_output_handle, value_repr, intermediates_manager):
+    def __init__(self, run_id, step_output_handle, value_repr, intermediates_manager):
+        self.run_id = run_id
         self.step_output_handle = step_output_handle
         self._value_repr = value_repr
         self._intermediates_manager = intermediates_manager
@@ -49,7 +50,7 @@ class StepOutputData:
         return self._value_repr
 
     def get_value(self):
-        return self._intermediates_manager.get_value(self.step_output_handle)
+        return self._intermediates_manager.read_step_output(self.run_id, self.step_output_handle)
 
 
 class StepFailureData(namedtuple('_StepFailureData', 'error_message error_cls_name stack')):

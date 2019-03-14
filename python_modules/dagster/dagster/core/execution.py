@@ -133,9 +133,10 @@ class PipelineExecutionResult(object):
 
         if name not in self.solid_result_dict:
             raise DagsterInvariantViolationError(
-                'Did not find result for solid {name} in pipeline execution result'.format(
-                    name=name
-                )
+                (
+                    'Did not find result for solid {name} in pipeline execution result. '
+                    'Keys available {keys}'
+                ).format(name=name, keys=list(self.solid_result_dict.keys()))
             )
 
         return self.solid_result_dict[name]
@@ -590,7 +591,7 @@ def invoke_executor_on_plan(pipeline_context, execution_plan, step_keys_to_execu
         step_events_gen = start_inprocess_executor(
             pipeline_context,
             execution_plan,
-            pipeline_context.run_config.executor_config.inmem_intermediates_manager,
+            pipeline_context.run_config.intermediates_manager,
             step_keys_to_execute,
         )
     elif isinstance(pipeline_context.executor_config, MultiprocessExecutorConfig):
