@@ -42,19 +42,15 @@ class LocalTempFileStore(FileStore):
     def writeable_binary_stream(self, *path_comps):
         self.ensure_root_exists()
 
-        target_path = self.newmethod97(path_comps)
-
-        with open(target_path, 'ab+') as ff:
-            yield ff
-
-    def newmethod97(self, path_comps):
         path_list = check_path_comps(path_comps)
 
         target_dir = os.path.join(self.root, *path_list[:-1])
         mkdir_p(target_dir)
 
         target_path = os.path.join(target_dir, path_list[-1])
-        return target_path
+
+        with open(target_path, 'ab+') as ff:
+            yield ff
 
     @contextmanager
     def readable_binary_stream(self, *path_comps):

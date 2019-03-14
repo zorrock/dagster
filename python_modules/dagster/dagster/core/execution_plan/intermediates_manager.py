@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 import pickle
 
 import six
@@ -61,9 +61,6 @@ class IntermediatesManager(six.with_metaclass(ABCMeta)):  # pylint: disable=no-i
         return True
 
 
-from collections import defaultdict
-
-
 class InMemoryIntermediatesManager(IntermediatesManager):
     def __init__(self):
         self.values = defaultdict(dict)
@@ -84,8 +81,6 @@ class InMemoryIntermediatesManager(IntermediatesManager):
         return step_output_handle in self.values.get(run_id, {})
 
 
-from dagster.core.runs import FileStorageBasedRunStorage
-
 # TODO: This should go through persistence and serialization infrastructure
 # Fixing this requires getting the type information (serialization_strategy is
 # a property of runtime type) of the step output you are dealing with. As things
@@ -105,9 +100,6 @@ class FileSystemIntermediateManager(IntermediatesManager):
         ]
 
     def read_step_output(self, run_id, step_output_handle):
-        print(f'Read step_output_handle {step_output_handle}')
-        print(f'About to read path {self._get_path_comps(run_id, step_output_handle)}')
-
         check.str_param(run_id, 'run_id')
         check.inst_param(step_output_handle, 'step_output_handle', StepOutputHandle)
         check.invariant(self.has_value(run_id, step_output_handle))
@@ -118,9 +110,6 @@ class FileSystemIntermediateManager(IntermediatesManager):
             return pickle.load(ff)
 
     def set_value(self, run_id, step_output_handle, value):
-        print(f'Write step_output_handle {step_output_handle}')
-        print(f'About to write path {self._get_path_comps(run_id, step_output_handle)}')
-
         check.str_param(run_id, 'run_id')
         check.inst_param(step_output_handle, 'step_output_handle', StepOutputHandle)
         check.invariant(not self.has_value(run_id, step_output_handle))
