@@ -394,6 +394,10 @@ def construct_pipeline_execution_context(
     tags = get_tags(execution_context, run_config, pipeline)
     log = DagsterLog(run_config.run_id, tags, loggers)
 
+    import os
+
+    root = os.path.join('/tmp', 'dagster', 'runs', run_config.run_id, 'files')
+
     return SystemPipelineExecutionContext(
         SystemPipelineExecutionContextData(
             pipeline_def=pipeline,
@@ -403,7 +407,7 @@ def construct_pipeline_execution_context(
             persistence_strategy=_create_persistence_strategy(
                 environment_config.context.persistence
             ),
-            files=LocalTempFileStore(run_config.run_id),
+            files=LocalTempFileStore(root),
         ),
         tags=tags,
         log=log,

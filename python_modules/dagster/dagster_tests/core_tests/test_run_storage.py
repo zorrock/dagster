@@ -5,14 +5,14 @@ import tempfile
 import time
 import shutil
 
-from dagster.core.runs import FilesystemRunStorage, DagsterRunMeta, InMemoryRunStorage
+from dagster.core.runs import FileStorageBasedRunStorage, DagsterRunMeta, InMemoryRunStorage
 
 
 @contextmanager
 def temp_run_storage():
     try:
         base_dir = tempfile.mkdtemp()
-        yield FilesystemRunStorage(base_dir)
+        yield FileStorageBasedRunStorage(base_dir)
     finally:
         if os.path.exists(base_dir):
             shutil.rmtree(base_dir)

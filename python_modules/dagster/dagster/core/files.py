@@ -27,9 +27,9 @@ def check_path_comps(path_comps):
 
 
 class LocalTempFileStore(FileStore):
-    def __init__(self, run_id):
-        check.str_param(run_id, 'run_id')
-        self.root = os.path.join('/tmp', 'dagster', 'runs', run_id, 'files')
+    def __init__(self, root):
+        check.str_param(root, 'root')
+        self.root = root
         self._created = False
 
     def ensure_root_exists(self):
@@ -42,6 +42,12 @@ class LocalTempFileStore(FileStore):
     def writeable_binary_stream(self, *path_comps):
         self.ensure_root_exists()
 
+        target_path = self.newmethod97(path_comps)
+
+        with open(target_path, 'wb') as ff:
+            yield ff
+
+    def newmethod97(self, path_comps):
         path_list = check_path_comps(path_comps)
 
         target_dir = os.path.join(self.root, *path_list[:-1])
@@ -49,8 +55,7 @@ class LocalTempFileStore(FileStore):
 
         target_path = os.path.join(target_dir, path_list[-1])
         check.invariant(not os.path.exists(target_path))
-        with open(target_path, 'wb') as ff:
-            yield ff
+        return target_path
 
     @contextmanager
     def readable_binary_stream(self, *path_comps):

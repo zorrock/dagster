@@ -1,7 +1,7 @@
 import datetime
 import click
 
-from dagster.core.runs import FilesystemRunStorage
+from dagster.core.runs import FileStorageBasedRunStorage
 
 
 def create_run_cli_group():
@@ -13,7 +13,7 @@ def create_run_cli_group():
 
 @click.command(name='list', help='List the runs in this dagster installation.')
 def run_list_command():
-    storage = FilesystemRunStorage()
+    storage = FileStorageBasedRunStorage.default()
     for run_meta in storage.get_run_metas():
         print('Run: {}'.format(run_meta.run_id))
         print('     Pipeline: {}'.format(run_meta.pipeline_name))
@@ -22,6 +22,6 @@ def run_list_command():
 
 @click.command(name='nuke', help='Eliminate all run history. Warning: Cannot be undone')
 def run_nuke_command():
-    storage = FilesystemRunStorage()
+    storage = FileStorageBasedRunStorage.default()
     storage.nuke()
     print('Deleted all run history')

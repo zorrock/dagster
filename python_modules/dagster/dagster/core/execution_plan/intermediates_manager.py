@@ -78,6 +78,8 @@ class InMemoryIntermediatesManager(IntermediatesManager):
         return step_output_handle in self.values
 
 
+from dagster.core.runs import FileStorageBasedRunStorage
+
 # TODO: This should go through persistence and serialization infrastructure
 # Fixing this requires getting the type information (serialization_strategy is
 # a property of runtime type) of the step output you are dealing with. As things
@@ -86,7 +88,8 @@ class InMemoryIntermediatesManager(IntermediatesManager):
 # the manager
 class FileSystemIntermediateManager(IntermediatesManager):
     def __init__(self, files):
-        self._files = check.inst_param(files, 'files', FileStore)
+        # self._run_storage = FileStorageBasedRunStorage(check.inst_param(files, 'files', FileStore))
+        self._files = files
 
     def _get_path_comps(self, step_output_handle):
         return ['intermediates', step_output_handle.step_key, step_output_handle.output_name]

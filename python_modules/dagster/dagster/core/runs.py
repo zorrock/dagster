@@ -1,4 +1,5 @@
 from collections import namedtuple, OrderedDict
+from contextlib import contextmanager
 import json
 import os
 import shutil
@@ -11,6 +12,11 @@ from dagster import seven
 
 def base_run_directory():
     return os.path.join(seven.get_system_temp_directory(), 'dagster', 'runs')
+
+
+def run_directory(run_id):
+    check.str_param(run_id, 'run_id')
+    return os.path.join(base_run_directory(), run_id)
 
 
 def meta_file(base_dir):
@@ -28,19 +34,38 @@ class DagsterRunMeta(namedtuple('_DagsterRunMeta', 'run_id timestamp pipeline_na
 
 
 class RunStorage:
-    pass
+    def get_run_metas(self):
+        check.failed('must implement')
+
+    def get_run_ids(self):
+        return list_pull(self.get_run_metas(), 'run_id')
 
 
-class FilesystemRunStorage(RunStorage):
-    def __init__(self, base_dir=None):
-        self._base_dir = check.opt_str_param(base_dir, 'base_dir', base_run_directory())
-        mkdir_p(base_run_directory())
+from .files import LocalTempFileStore
+
+
+class FileStorageBasedRunStorage(RunStorage):
+    @staticmethod
+    def default():
+        return FileStorageBasedRunStorage(base_run_directory())
+
+    def __init__(self, base_dir):
+        self._base_dir = check.str_param(base_dir, 'base_dir')
+        mkdir_p(self._base_dir)
         self._meta_file = meta_file(self._base_dir)
+        self._file_store = LocalTempFileStore(self._base_dir)
+
+    @contextmanager
+    def writeable_run_file(self, run_id, *path_comps):
+        check.str_param(run_id, 'run_id')
+
+        with self.writeable_run_file(*([run_id] + list(path_comps))) as ff:
+            yield ff
 
     def write_dagster_run_meta(self, dagster_run_meta):
         check.inst_param(dagster_run_meta, 'dagster_run_meta', DagsterRunMeta)
-        with open(self._meta_file, 'a+') as ff:
-            ff.write(json.dumps(dagster_run_meta._asdict()) + '\n')
+        with self._file_store.writeable_binary_stream('runmeta.jsonl') as ff:
+            ff.write((json.dumps(dagster_run_meta._asdict()) + '\n').encode('utf-8'))
 
     def get_run_ids(self):
         return list_pull(self.get_run_metas(), 'run_id')
@@ -58,10 +83,10 @@ class FilesystemRunStorage(RunStorage):
             return []
 
         run_metas = []
-        with open(self._meta_file, 'r') as ff:
+        with self._file_store.readable_binary_stream('runmeta.jsonl') as ff:
             line = ff.readline()
             while line:
-                raw_run_meta = json.loads(line)
+                raw_run_meta = json.loads(line.decode('utf-8'))
                 run_metas.append(
                     DagsterRunMeta(
                         run_id=raw_run_meta['run_id'],
@@ -82,10 +107,8 @@ class InMemoryRunStorage(RunStorage):
         self._run_metas = OrderedDict()
 
     def write_dagster_run_meta(self, dagster_run_meta):
+        check.inst_param(dagster_run_meta, 'dagster_run_meta', DagsterRunMeta)
         self._run_metas[dagster_run_meta.run_id] = dagster_run_meta
-
-    def get_run_ids(self):
-        return list_pull(self.get_run_metas(), 'run_id')
 
     def get_run_metas(self):
         return list(self._run_metas.values())
