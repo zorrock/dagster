@@ -55,13 +55,6 @@ class FileStorageBasedRunStorage(RunStorage):
         self._meta_file = meta_file(self._base_dir)
         self._file_store = LocalTempFileStore(self._base_dir)
 
-    @contextmanager
-    def writeable_run_file(self, run_id, *path_comps):
-        check.str_param(run_id, 'run_id')
-
-        with self.writeable_run_file(*([run_id] + list(path_comps))) as ff:
-            yield ff
-
     def register_dagster_run_meta(self, dagster_run_meta):
         check.inst_param(dagster_run_meta, 'dagster_run_meta', DagsterRunMeta)
         with self._file_store.writeable_binary_stream('runmeta.jsonl') as ff:
