@@ -2,8 +2,8 @@ version: 2
 
 workflows:
   version: 2
-  test:
-    jobs:
+  test: 
+    jobs: &test-jobs
       # Required for merge
 
       - dagit-webapp:
@@ -138,6 +138,9 @@ workflows:
                 - nightly
     jobs:
       - nightly
+  build:
+    jobs: *test-jobs
+
 
 jobs:
   format:
@@ -961,3 +964,7 @@ jobs:
             python -m venv .
             source bin/activate
             . dev_env_setup.sh
+
+notify:
+  webhooks:
+    - url: https://dagster.phacility.com/harbormaster/hook/circleci/
