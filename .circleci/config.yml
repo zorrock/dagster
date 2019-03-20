@@ -961,3 +961,7 @@ jobs:
             python -m venv .
             source bin/activate
             . dev_env_setup.sh
+
+notify:
+  webhooks:
+    - url: https://dagster.phacility.com/harbormaster/hook/circleci/
