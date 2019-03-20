@@ -2,7 +2,7 @@ version: 2
 
 workflows:
   version: 2
-  test:
+  test: &test-flow
     jobs:
       # Required for merge
 
@@ -138,6 +138,8 @@ workflows:
                 - nightly
     jobs:
       - nightly
+  build:
+    <<*: *test-flow
 
 jobs:
   format:
@@ -961,3 +963,7 @@ jobs:
             python -m venv .
             source bin/activate
             . dev_env_setup.sh
+
+notify:
+  webhooks:
+    - url: https://dagster.phacility.com/harbormaster/hook/circleci/
