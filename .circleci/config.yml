@@ -705,6 +705,7 @@ jobs:
           name: Move coverage
           command: |
             mv js_modules/dagit/coverage/lcov.info js_modules/dagit/coverage/lcov.dagit.${CIRCLE_BUILD_NUM}.info
+            ls js_modules/dagit/coverage
 
       - persist_to_workspace:
           root: js_modules/dagit/coverage
