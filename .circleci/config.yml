@@ -909,7 +909,7 @@ jobs:
             sudo apt-get update
             sudo apt-get -qq -y install lcov ruby-full
             sudo pip install coverage coveralls coveralls-merge
-            gem install coveralls-lcov
+            sudo gem install coveralls-lcov
 
       - attach_workspace:
           at: /tmp/workspace
