@@ -710,7 +710,7 @@ jobs:
       - persist_to_workspace:
           root: js_modules/dagit/coverage
           paths:
-            - "*.info"
+            - lcov.*
 
   # We are using the machine executor in order to avoid the pitfalls catalogued at
   # https://circleci.com/docs/2.0/building-docker-images/#separation-of-environments.
