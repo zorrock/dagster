@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from contextlib import contextmanager
 import sys
 
@@ -256,6 +258,24 @@ def _execute_steps_core_loop(step_context, inputs, intermediates_manager):
     )
 
 
+def _value_repr(value):
+    '''Human readable representation of values in step output events.
+
+    This is not a legit serialization format, but a stopgap to facilitate writing tests against the
+    value_repr exposed in the GraphQL interface.
+    '''
+
+    if isinstance(value, six.string_types):
+        # in py2, repr('foo') == "'foo'", repr(u'foo') == "u'foo'" -- note that as written this just
+        # won't work for non-ASCII strings
+        value_repr = repr(value.encode('utf-8'))
+    elif isinstance(value, dict):
+        # ensure that key order is maintained across python versions
+        value_repr = seven.json.dumps(value).replace('"', '\'')
+    else:
+        value_repr = repr(value)
+
+
 def _create_step_output_event(step_context, step_output_value, intermediates_manager):
     check.inst_param(step_context, 'step_context', SystemStepExecutionContext)
     check.inst_param(step_output_value, 'step_output_value', StepOutputValue)
@@ -277,19 +297,11 @@ def _create_step_output_event(step_context, step_output_value, intermediates_man
             value=value,
         )
 
-        # This is a stopgap to facilitate writing tests against the value_repr exposed in the
-        # GraphQL interface
-        if isinstance(value, six.string_types):
-            value_repr = repr(str(value))
-        elif isinstance(value, dict):
-            value_repr = seven.json.dumps(value).replace('"', '\'')
-        else:
-            value_repr = repr(value)
         return DagsterEvent.step_output_event(
             step_context=step_context,
             step_output_data=StepOutputData(
                 step_output_handle=step_output_handle,
-                value_repr=value_repr,
+                value_repr=_value_repr(value),
                 storage_object_id=object_key,
                 storage_mode_value=intermediates_manager.storage_mode.value,
             ),
