@@ -5,6 +5,8 @@ from dagster import execute_pipeline
 
 from dagster.utils import load_yaml_from_globs, script_relative_path
 
+from dagstermill.test_utils import notebook_test
+
 from airline_demo.pipelines import (
     define_airline_demo_ingest_pipeline,
     define_airline_demo_warehouse_pipeline,
@@ -32,6 +34,7 @@ def test_airline_pipeline_0_ingest(docker_compose_db):
 @nettest
 @py3
 @spark
+@notebook_test
 def test_airline_pipeline_1_warehouse(docker_compose_db):
     warehouse_config_object = load_yaml_from_globs(
         script_relative_path('../environments/local_base.yml'),
