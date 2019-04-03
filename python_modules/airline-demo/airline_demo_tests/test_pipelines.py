@@ -4,8 +4,7 @@ import pytest
 from dagster import execute_pipeline
 
 from dagster.utils import load_yaml_from_globs, script_relative_path
-
-from dagstermill.test_utils import notebook_test
+from dagstermill.test_utils import do_notebook_retry
 
 from airline_demo.pipelines import (
     define_airline_demo_ingest_pipeline,
@@ -34,16 +33,16 @@ def test_airline_pipeline_0_ingest(docker_compose_db):
 @nettest
 @py3
 @spark
-@notebook_test
 def test_airline_pipeline_1_warehouse(docker_compose_db):
     warehouse_config_object = load_yaml_from_globs(
         script_relative_path('../environments/local_base.yml'),
         script_relative_path('../environments/local_warehouse.yml'),
     )
 
-    result_warehouse = execute_pipeline(
-        define_airline_demo_warehouse_pipeline(), warehouse_config_object
+    result_warehouse = do_notebook_retry(
+        lambda: execute_pipeline(define_airline_demo_warehouse_pipeline(), warehouse_config_object)
     )
+
     assert result_warehouse.success
 
 

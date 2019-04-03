@@ -2,6 +2,14 @@ import sys
 from dagstermill import DagstermillError
 
 
+def do_notebook_retry(f):
+    try:
+        return f()
+    except DagstermillError as de:
+        if 'Kernel died before replying to kernel_info' in str(de):
+            return f()
+
+
 def notebook_test(f):
     # import this on demand so that main module does not require pytest if this is not called
     import pytest
@@ -13,11 +21,7 @@ def notebook_test(f):
     # where we get this error and its unclear why. We insert a
     # retry here
     def do_test_with_retry():
-        try:
-            f()
-        except DagstermillError as de:
-            if 'Kernel died before replying to kernel_info' in str(de):
-                f()
+        do_notebook_retry(f)
 
     return pytest.mark.notebook_test(
         pytest.mark.skipif(
