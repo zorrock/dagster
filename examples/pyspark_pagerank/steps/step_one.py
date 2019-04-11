@@ -10,3 +10,8 @@ def define_pyspark_pagerank_step_one():
     return PipelineDefinition(
         name='pyspark_pagerank_step_one', solids=[hello_world]
     )
+
+
+if __name__ == '__main__':
+    from dagster import execute_pipeline
+    execute_pipeline(define_pyspark_pagerank_step_one())
