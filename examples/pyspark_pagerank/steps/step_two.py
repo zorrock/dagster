@@ -1,3 +1,19 @@
+'''
+This is mostly a copy-paste job from original.py
+
+Purpose of this step is to include Pipelines, Solids (with input and config)
+
+1) Add includes
+2) Annotated execute_pagerank with
+@solid(
+    inputs=[InputDefinition('path', Path)],
+    config_field=Field(Dict({'iterations': Field(Int)})),
+)
+def execute_pagerank(context, path):
+3) Set iterations via config
+iterations = context.solid_config['iterations']
+4) Replace print with context.log.info
+'''
 import re
 from operator import add
 
@@ -39,12 +55,7 @@ def execute_pagerank_step_two(context, path):
     lines = spark.read.text(path).rdd.map(lambda r: r[0])
 
     # Loads all URLs from input file and initialize their neighbors.
-    links = (
-        lines.map(lambda urls: parseNeighbors(urls))
-        .distinct()
-        .groupByKey()
-        .cache()
-    )
+    links = lines.map(parseNeighbors).distinct().groupByKey().cache()
 
     # Loads all URLs with other URL(s) link to from input file and initialize ranks of them to one.
     ranks = links.map(lambda url_neighbors: (url_neighbors[0], 1.0))
@@ -52,7 +63,7 @@ def execute_pagerank_step_two(context, path):
     iterations = context.solid_config['iterations']
 
     # Calculates and updates URL ranks continuously using PageRank algorithm.
-    for iteration in range(iterations):
+    for _ in range(iterations):
         # Calculates URL contributions to the rank of other URLs.
         contribs = links.join(ranks).flatMap(
             lambda url_urls_rank: computeContribs(

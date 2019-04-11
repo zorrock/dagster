@@ -1,3 +1,42 @@
+'''
+Next step: Add dependencies:
+
+1) Additional includes (DependencyDefinition)
+2) Extract load_pagerank_data
+@solid(inputs=[InputDefinition('path', Path)])
+def load_pagerank_data_step_three(_context, path):
+    # Initialize the spark context.
+    spark = SparkSession.builder.appName("PythonPageRank").getOrCreate()
+
+    # two urls per line with space in between)
+    lines = spark.read.text(path).rdd.map(lambda r: r[0])
+
+    # Loads all URLs from input file and initialize their neighbors.
+    return lines.map(parseNeighbors)
+
+3) Edit execute_pagerank:
+@solid(
+    inputs=[InputDefinition('urls')],
+    config_field=Field(Dict({'iterations': Field(Int)})),
+)
+def execute_pagerank_step_three(context, urls):
+    # Initialize the spark context.
+    spark = SparkSession.builder.appName("PythonPageRank").getOrCreate()
+
+    # Loads all URLs from input file and initialize their neighbors.
+    links = urls.distinct().groupByKey().cache()
+
+4) Change pipeline definition to include new solids + dep
+    return PipelineDefinition(
+        name='pyspark_pagerank_step_three',
+        dependencies={
+            'execute_pagerank_step_three': {
+                'urls': DependencyDefinition('load_pagerank_data_step_three')
+            }
+        },
+        solids=[load_pagerank_data_step_three, execute_pagerank_step_three],
+    )
+'''
 import re
 from operator import add
 
