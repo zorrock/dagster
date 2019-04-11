@@ -31,7 +31,7 @@ def parseNeighbors(urls):
     inputs=[InputDefinition('path', Path)],
     config_field=Field(Dict({'iterations': Field(Int)})),
 )
-def whole_pipeline_solid(context, path):
+def execute_pagerank_step_two(context, path):
     # Initialize the spark context.
     spark = SparkSession.builder.appName("PythonPageRank").getOrCreate()
 
@@ -49,7 +49,7 @@ def whole_pipeline_solid(context, path):
     # Loads all URLs with other URL(s) link to from input file and initialize ranks of them to one.
     ranks = links.map(lambda url_neighbors: (url_neighbors[0], 1.0))
 
-    iterations = 2
+    iterations = context.solid_config['iterations']
 
     # Calculates and updates URL ranks continuously using PageRank algorithm.
     for iteration in range(iterations):
@@ -74,7 +74,7 @@ def whole_pipeline_solid(context, path):
 
 def define_pyspark_pagerank_step_two():
     return PipelineDefinition(
-        name='pyspark_pagerank_step_two', solids=[whole_pipeline_solid]
+        name='pyspark_pagerank_step_two', solids=[execute_pagerank_step_two]
     )
 
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         define_pyspark_pagerank_step_two(),
         environment_dict={
             'solids': {
-                'whole_pipeline_solid': {
+                'execute_pagerank_step_two': {
                     'inputs': {'path': '../pagerank_data.txt'},
                     'config': {'iterations': 2},
                 }
