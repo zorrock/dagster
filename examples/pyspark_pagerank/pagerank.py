@@ -10,12 +10,9 @@ from dagster import (
     InputDefinition,
     Int,
     Path,
-    PipelineContextDefinition,
     PipelineDefinition,
     solid,
 )
-
-from dagster_pyspark import spark_session_resource
 
 
 def computeContribs(urls, rank):
@@ -37,7 +34,7 @@ def load_pagerank_data(context, path):
     spark = SparkSession.builder.appName("PythonPageRank").getOrCreate()
 
     # two urls per line with space in between)
-    lines = context.resources.spark.read.text(path).rdd.map(lambda r: r[0])
+    lines = spark.read.text(path).rdd.map(lambda r: r[0])
 
     # Loads all URLs from input file and initialize their neighbors.
     return lines.map(parseNeighbors)
@@ -70,13 +67,12 @@ def execute_pagerank(context, urls):
     for (link, rank) in ranks.collect():
         context.log.info("%s has rank: %s." % (link, rank))
 
+    spark.stop()
+
 
 def define_pipeline():
     return PipelineDefinition(
         name='pyspark_pagerank',
-        context_definitions={
-            'local': PipelineContextDefinition(resources={'spark': spark_session_resource})
-        },
         dependencies={'execute_pagerank': {'urls': DependencyDefinition('load_pagerank_data')}},
         solids=[load_pagerank_data, execute_pagerank],
     )
