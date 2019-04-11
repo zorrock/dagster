@@ -1,7 +1,5 @@
 # getting false positives in vscode
-from pyspark.sql import (
-    SparkSession,
-)  # pylint: disable=no-name-in-module,import-error
+from pyspark.sql import SparkSession  # pylint: disable=no-name-in-module,import-error
 from pyspark.rdd import RDD  # pylint: disable=no-name-in-module,import-error
 
 from dagster import (
@@ -68,17 +66,13 @@ def write_rdd(context, file_type, file_options, spark_rdd):
         df = context.resources.spark.createDataFrame(spark_rdd)
         context.log.info('DF: {}'.format(df))
         df.write.csv(
-            file_options['path'],
-            header=file_options.get('header'),
-            sep=file_options.get('sep'),
+            file_options['path'], header=file_options.get('header'), sep=file_options.get('sep')
         )
     else:
         check.failed('Unsupported file type: {}'.format(file_type))
 
 
-SparkRDD = as_dagster_type(
-    RDD, 'SparkRDD', input_schema=load_rdd, output_schema=write_rdd
-)
+SparkRDD = as_dagster_type(RDD, 'SparkRDD', input_schema=load_rdd, output_schema=write_rdd)
 
 
 @resource(config_field=Field(Dict({'spark_conf': spark_config()})))
