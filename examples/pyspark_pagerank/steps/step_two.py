@@ -3,7 +3,15 @@ from operator import add
 
 from pyspark.sql import SparkSession
 
-from dagster import PipelineDefinition, solid, InputDefinition, Path
+from dagster import (
+    PipelineDefinition,
+    solid,
+    InputDefinition,
+    Path,
+    Field,
+    Dict,
+    Int,
+)
 
 
 def computeContribs(urls, rank):
@@ -19,13 +27,16 @@ def parseNeighbors(urls):
     return parts[0], parts[1]
 
 
-@solid(inputs=[InputDefinition('pagerank_data', Path)])
-def whole_pipeline_solid(context, pagerank_data):
+@solid(
+    inputs=[InputDefinition('path', Path)],
+    config_field=Field(Dict({'iterations': Field(Int)})),
+)
+def whole_pipeline_solid(context, path):
     # Initialize the spark context.
     spark = SparkSession.builder.appName("PythonPageRank").getOrCreate()
 
     # two urls per line with space in between)
-    lines = spark.read.text(pagerank_data).rdd.map(lambda r: r[0])
+    lines = spark.read.text(path).rdd.map(lambda r: r[0])
 
     # Loads all URLs from input file and initialize their neighbors.
     links = (
@@ -64,4 +75,20 @@ def whole_pipeline_solid(context, pagerank_data):
 def define_pyspark_pagerank_step_two():
     return PipelineDefinition(
         name='pyspark_pagerank_step_two', solids=[whole_pipeline_solid]
+    )
+
+
+if __name__ == '__main__':
+    from dagster import execute_pipeline
+
+    execute_pipeline(
+        define_pyspark_pagerank_step_two(),
+        environment_dict={
+            'solids': {
+                'whole_pipeline_solid': {
+                    'inputs': {'path': '../pagerank_data.txt'},
+                    'config': {'iterations': 2},
+                }
+            }
+        },
     )

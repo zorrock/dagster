@@ -14,4 +14,5 @@ def define_pyspark_pagerank_step_one():
 
 if __name__ == '__main__':
     from dagster import execute_pipeline
+
     execute_pipeline(define_pyspark_pagerank_step_one())
