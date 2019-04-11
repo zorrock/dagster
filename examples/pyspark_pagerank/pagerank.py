@@ -1,8 +1,6 @@
 import re
 from operator import add
 
-from pyspark.sql import SparkSession
-
 from dagster import (
     DependencyDefinition,
     Dict,
@@ -10,9 +8,12 @@ from dagster import (
     InputDefinition,
     Int,
     Path,
+    PipelineContextDefinition,
     PipelineDefinition,
     solid,
 )
+
+from dagster_pyspark import spark_session_resource
 
 
 def computeContribs(urls, rank):
@@ -30,21 +31,23 @@ def parseNeighbors(urls):
 
 @solid(inputs=[InputDefinition('path', Path)])
 def load_pagerank_data(context, path):
-    # Initialize the spark context.
-    spark = SparkSession.builder.appName("PythonPageRank").getOrCreate()
-
+    context.log.info(
+        'Loading spark app {}'.format(
+            context.resources.spark.conf.get('spark.app.name')
+        )
+    )
     # two urls per line with space in between)
-    lines = spark.read.text(path).rdd.map(lambda r: r[0])
+    lines = context.resources.spark.read.text(path).rdd.map(lambda r: r[0])
 
     # Loads all URLs from input file and initialize their neighbors.
     return lines.map(parseNeighbors)
 
 
-@solid(inputs=[InputDefinition('urls')], config_field=Field(Dict({'iterations': Field(Int)})))
+@solid(
+    inputs=[InputDefinition('urls')],
+    config_field=Field(Dict({'iterations': Field(Int)})),
+)
 def execute_pagerank(context, urls):
-    # Initialize the spark context.
-    spark = SparkSession.builder.appName("PythonPageRank").getOrCreate()
-
     # Loads all URLs from input file and initialize their neighbors.
     links = urls.distinct().groupByKey().cache()
 
@@ -57,23 +60,34 @@ def execute_pagerank(context, urls):
     for _ in range(iterations):
         # Calculates URL contributions to the rank of other URLs.
         contribs = links.join(ranks).flatMap(
-            lambda url_urls_rank: computeContribs(url_urls_rank[1][0], url_urls_rank[1][1])
+            lambda url_urls_rank: computeContribs(
+                url_urls_rank[1][0], url_urls_rank[1][1]
+            )
         )
 
         # Re-calculates URL ranks based on neighbor contributions.
-        ranks = contribs.reduceByKey(add).mapValues(lambda rank: rank * 0.85 + 0.15)
+        ranks = contribs.reduceByKey(add).mapValues(
+            lambda rank: rank * 0.85 + 0.15
+        )
 
     # Collects all URL ranks and dump them to console.
     for (link, rank) in ranks.collect():
         context.log.info("%s has rank: %s." % (link, rank))
 
-    spark.stop()
-
 
 def define_pipeline():
     return PipelineDefinition(
         name='pyspark_pagerank',
-        dependencies={'execute_pagerank': {'urls': DependencyDefinition('load_pagerank_data')}},
+        context_definitions={
+            'local': PipelineContextDefinition(
+                resources={'spark': spark_session_resource}
+            )
+        },
+        dependencies={
+            'execute_pagerank': {
+                'urls': DependencyDefinition('load_pagerank_data')
+            }
+        },
         solids=[load_pagerank_data, execute_pagerank],
     )
 
@@ -85,7 +99,9 @@ if __name__ == '__main__':
         define_pipeline(),
         environment_dict={
             'solids': {
-                'load_pagerank_data': {'inputs': {'path': 'pagerank_data.txt'}},
+                'load_pagerank_data': {
+                    'inputs': {'path': 'pagerank_data.txt'}
+                },
                 'execute_pagerank': {'config': {'iterations': 2}},
             }
         },
