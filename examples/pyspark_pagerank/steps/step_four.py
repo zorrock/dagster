@@ -2,6 +2,9 @@ import re
 from operator import add
 
 from dagster import (
+    Field,
+    Dict,
+    Int,
     DependencyDefinition,
     InputDefinition,
     OutputDefinition,
@@ -10,7 +13,7 @@ from dagster import (
     PipelineDefinition,
     solid,
 )
-from dagster_framework.pyspark import spark_session_resource, SparkRDD
+from dagster_pyspark import spark_session_resource, SparkRDD
 
 
 def computeContribs(urls, rank):
@@ -27,29 +30,33 @@ def parseNeighbors(urls):
 
 
 @solid(
-    inputs=[InputDefinition('pagerank_data', Path)],
+    inputs=[InputDefinition('path', Path)],
     outputs=[OutputDefinition(SparkRDD)],
 )
-def parse_pagerank_data_step_four(context, pagerank_data):
-    lines = context.resources.spark.read.text(pagerank_data).rdd.map(
-        lambda r: r[0]
-    )
+def load_pagerank_data(context, path):
+    # two urls per line with space in between)
+    lines = context.resources.spark.read.text(path).rdd.map(lambda r: r[0])
+
+    # Loads all URLs from input file and initialize their neighbors.
     return lines.map(parseNeighbors)
 
 
-@solid(inputs=[InputDefinition('urls', SparkRDD)])
-def rest_of_pipeline(context, urls):
-    links = urls.distinct().groupByKey().cache()
+@solid(
+    inputs=[InputDefinition('links', SparkRDD)],
+    config_field=Field(Dict({'iterations': Field(Int)})),
+)
+def execute_pagerank(context, links):
+    cached_links = links.distinct().groupByKey().cache()
 
     # Loads all URLs with other URL(s) link to from input file and initialize ranks of them to one.
-    ranks = links.map(lambda url_neighbors: (url_neighbors[0], 1.0))
+    ranks = cached_links.map(lambda url_neighbors: (url_neighbors[0], 1.0))
 
-    iterations = 2
+    iterations = context.solid_config['iterations']
 
     # Calculates and updates URL ranks continuously using PageRank algorithm.
-    for iteration in range(iterations):
+    for _ in range(iterations):
         # Calculates URL contributions to the rank of other URLs.
-        contribs = links.join(ranks).flatMap(
+        contribs = cached_links.join(ranks).flatMap(
             lambda url_urls_rank: computeContribs(
                 url_urls_rank[1][0], url_urls_rank[1][1]
             )
@@ -65,13 +72,13 @@ def rest_of_pipeline(context, urls):
         context.log.info("%s has rank: %s." % (link, rank))
 
 
-def define_pyspark_pagerank_step_four():
+def define_pipeline():
     return PipelineDefinition(
-        name='pyspark_pagerank_step_four',
-        solids=[parse_pagerank_data_step_four, rest_of_pipeline],
+        name='pyspark_pagerank',
+        solids=[load_pagerank_data, execute_pagerank],
         dependencies={
-            'rest_of_pipeline': {
-                'urls': DependencyDefinition('parse_pagerank_data_step_four')
+            'execute_pagerank': {
+                'links': DependencyDefinition('load_pagerank_data')
             }
         },
         context_definitions={
