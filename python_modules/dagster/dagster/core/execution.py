@@ -70,11 +70,7 @@ from .intermediates_manager import (
 
 from .log import DagsterLog
 
-from .object_store import (
-    FileSystemObjectStore,
-    S3ObjectStore,
-    construct_type_storage_plugin_registry,
-)
+from .object_store import FileSystemObjectStore, construct_type_storage_plugin_registry
 
 from .runs import (
     DagsterRunMeta,
@@ -428,11 +424,7 @@ def construct_intermediates_manager(run_config, environment_config, pipeline_def
             return InMemoryIntermediatesManager()
         elif run_config.storage_mode == RunStorageMode.S3:
             return ObjectStoreIntermediatesManager(
-                S3ObjectStore(
-                    environment_config.storage.storage_config['s3_bucket'],
-                    run_config.run_id,
-                    construct_type_storage_plugin_registry(pipeline_def, RunStorageMode.S3),
-                )
+                create_s3_object_store(run_config, environment_config, pipeline_def)
             )
         else:
             check.failed('Unexpected enum {}'.format(run_config.storage_mode))
@@ -447,11 +439,7 @@ def construct_intermediates_manager(run_config, environment_config, pipeline_def
         return InMemoryIntermediatesManager()
     elif environment_config.storage.storage_mode == 's3':
         return ObjectStoreIntermediatesManager(
-            S3ObjectStore(
-                environment_config.storage.storage_config['s3_bucket'],
-                run_config.run_id,
-                construct_type_storage_plugin_registry(pipeline_def, RunStorageMode.S3),
-            )
+            create_s3_object_store(run_config, environment_config, pipeline_def)
         )
     elif environment_config.storage.storage_mode is None:
         return InMemoryIntermediatesManager()
@@ -459,6 +447,24 @@ def construct_intermediates_manager(run_config, environment_config, pipeline_def
         raise DagsterInvariantViolationError(
             'Invalid storage specified {}'.format(environment_config.storage.storage_mode)
         )
+
+
+def create_s3_object_store(run_config, environment_config, pipeline_def):
+    try:
+        import dagster_aws
+    except (ImportError, ModuleNotFoundError):
+        raise check.CheckError(
+            (
+                'In order to use dagster s3 storage you *must* dagster_aws installed '
+                'in you python environment'
+            )
+        )
+
+    return dagster_aws.s3_object_store.S3ObjectStore(
+        environment_config.storage.storage_config['s3_bucket'],
+        run_config.run_id,
+        construct_type_storage_plugin_registry(pipeline_def, RunStorageMode.S3),
+    )
 
 
 @contextmanager
