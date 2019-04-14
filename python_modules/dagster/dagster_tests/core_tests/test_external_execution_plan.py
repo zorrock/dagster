@@ -21,13 +21,9 @@ from dagster.core.execution import (
     create_execution_plan,
     execute_plan,
 )
-from dagster.core.object_store import (
-    get_filesystem_intermediate,
-    has_filesystem_intermediate,
-    get_s3_intermediate,
-    has_s3_intermediate,
-    rm_s3_intermediate,
-)
+from dagster.core.object_store import get_filesystem_intermediate, has_filesystem_intermediate
+
+from dagster_aws.s3_object_store import get_s3_intermediate, has_s3_intermediate, rm_s3_intermediate
 
 from ..marks import aws, nettest
 

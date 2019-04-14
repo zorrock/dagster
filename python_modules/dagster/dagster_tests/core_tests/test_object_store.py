@@ -17,7 +17,8 @@ from dagster import (
 )
 from dagster.core.execution import yield_pipeline_execution_context
 from dagster.core.types.marshal import SerializationStrategy
-from dagster.core.object_store import FileSystemObjectStore, S3ObjectStore, TypeStoragePlugin
+from dagster.core.object_store import FileSystemObjectStore, TypeStoragePlugin
+from dagster_aws.s3_object_store import S3ObjectStore
 from dagster.core.types.runtime import Bool, resolve_to_runtime_type, RuntimeType, String
 from dagster.utils import mkdir_p
 
