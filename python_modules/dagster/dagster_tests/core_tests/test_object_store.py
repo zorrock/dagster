@@ -272,4 +272,3 @@ def test_file_system_object_store_with_composite_type_storage_plugin():
             object_store.set_value(
                 ['hello'], context, resolve_to_runtime_type(Nullable_(List_(String_))), ['obj_name']
             )
-

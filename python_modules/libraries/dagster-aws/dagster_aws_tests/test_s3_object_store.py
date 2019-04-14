@@ -16,7 +16,12 @@ from dagster.core.types.marshal import SerializationStrategy
 from dagster.core.object_store import TypeStoragePlugin
 from dagster.core.types.runtime import resolve_to_runtime_type, RuntimeType, String
 
-from dagster_aws.s3_object_store import S3ObjectStore
+from dagster_aws.s3_object_store import (
+    S3ObjectStore,
+    get_s3_intermediate,
+    has_s3_intermediate,
+    rm_s3_intermediate,
+)
 
 
 def aws_credentials_present():
@@ -157,3 +162,100 @@ def test_s3_object_store_with_composite_type_storage_plugin():
             object_store.set_value(
                 ['hello'], context, resolve_to_runtime_type(List_(String_)), ['obj_name']
             )
+
+
+from dagster.core.execution import (
+    MultiprocessExecutorConfig,
+    yield_pipeline_execution_context,
+    DagsterEventType,
+    create_execution_plan,
+    execute_plan,
+)
+from dagster import lambda_solid, Int, OutputDefinition, Int, DependencyDefinition
+
+
+def define_inty_pipeline():
+    @lambda_solid
+    def return_one():
+        return 1
+
+    @lambda_solid(inputs=[InputDefinition('num', Int)], output=OutputDefinition(Int))
+    def add_one(num):
+        return num + 1
+
+    @lambda_solid
+    def user_throw_exception():
+        raise Exception('whoops')
+
+    pipeline = PipelineDefinition(
+        name='basic_external_plan_execution',
+        solids=[return_one, add_one, user_throw_exception],
+        dependencies={'add_one': {'num': DependencyDefinition('return_one')}},
+    )
+    return pipeline
+
+
+def get_step_output(step_events, step_key, output_name='result'):
+    for step_event in step_events:
+        if (
+            step_event.event_type == DagsterEventType.STEP_OUTPUT
+            and step_event.step_key == step_key
+            and step_event.step_output_data.output_name == output_name
+        ):
+            return step_event
+    return None
+
+
+@aws
+@nettest
+def test_using_s3_for_subplan(s3_bucket):
+    pipeline = define_inty_pipeline()
+
+    environment_dict = {'storage': {'s3': {'s3_bucket': s3_bucket}}}
+
+    execution_plan = create_execution_plan(pipeline, environment_dict=environment_dict)
+
+    assert execution_plan.get_step_by_key('return_one.transform')
+
+    step_keys = ['return_one.transform']
+
+    run_id = str(uuid.uuid4())
+
+    try:
+        return_one_step_events = list(
+            execute_plan(
+                execution_plan,
+                environment_dict=environment_dict,
+                run_config=RunConfig(run_id=run_id),
+                step_keys_to_execute=step_keys,
+            )
+        )
+
+        assert get_step_output(return_one_step_events, 'return_one.transform')
+        with yield_pipeline_execution_context(
+            pipeline, environment_dict, RunConfig(run_id=run_id)
+        ) as context:
+            assert has_s3_intermediate(context, s3_bucket, run_id, 'return_one.transform')
+            assert get_s3_intermediate(context, s3_bucket, run_id, 'return_one.transform', Int) == 1
+
+        add_one_step_events = list(
+            execute_plan(
+                execution_plan,
+                environment_dict=environment_dict,
+                run_config=RunConfig(run_id=run_id),
+                step_keys_to_execute=['add_one.transform'],
+            )
+        )
+
+        assert get_step_output(add_one_step_events, 'add_one.transform')
+        with yield_pipeline_execution_context(
+            pipeline, environment_dict, RunConfig(run_id=run_id)
+        ) as context:
+            assert has_s3_intermediate(context, s3_bucket, run_id, 'add_one.transform')
+            assert get_s3_intermediate(context, s3_bucket, run_id, 'add_one.transform', Int) == 2
+    finally:
+        with yield_pipeline_execution_context(
+            pipeline, environment_dict, RunConfig(run_id=run_id)
+        ) as context:
+            rm_s3_intermediate(context, s3_bucket, run_id, 'return_one.transform')
+            rm_s3_intermediate(context, s3_bucket, run_id, 'add_one.transform')
