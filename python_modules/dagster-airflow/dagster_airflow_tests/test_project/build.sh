@@ -6,11 +6,20 @@
 
 cp -R ../../../dagster . && \
 cp -R ../../../dagster-graphql . && \
-\
-rm -rf dagster/.tox dagster-graphql/.tox dagster/dist dagster-graphql/dist \
-    dagster/*.egg-info dagster-graphql/*.egg-info dagster/build \
-    dagster-graphql/build && \
+cp -R ../../../libraries/dagster-aws . && \
+rm -rf \
+  dagster/.tox \
+  dagster/dist \
+  dagster/build \
+  dagster/*.egg-info \
+  dagster-aws/.tox \
+  dagster-aws/dist \
+  dagster-aws/build \
+  dagster-aws/*.egg-info \
+  dagster-graphql/.tox \
+  dagster-graphql/dist \
+  dagster-graphql/*.egg-info \
+  dagster-graphql/build && \
 \
 docker build -t dagster-airflow-demo . && \
-\
-rm -rf dagster dagster-graphql
+rm -rf dagster dagster-graphql dagster-aws
