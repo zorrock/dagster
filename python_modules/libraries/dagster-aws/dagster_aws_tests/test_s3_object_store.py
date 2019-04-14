@@ -171,7 +171,7 @@ from dagster.core.execution import (
     create_execution_plan,
     execute_plan,
 )
-from dagster import lambda_solid, Int, OutputDefinition, Int, DependencyDefinition
+from dagster import lambda_solid, Int, OutputDefinition, Int, DependencyDefinition, InputDefinition
 
 
 def define_inty_pipeline():
