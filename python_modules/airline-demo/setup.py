@@ -30,6 +30,7 @@ setup(
     install_requires=[
         'boto3==1.9.*',
         'dagster',
+        'dagster_aws',
         'dagstermill',
         'descartes==1.1.0',
         'geopandas==0.4.0',
