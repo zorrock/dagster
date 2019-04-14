@@ -259,3 +259,26 @@ def test_using_s3_for_subplan(s3_bucket):
         ) as context:
             rm_s3_intermediate(context, s3_bucket, run_id, 'return_one.transform')
             rm_s3_intermediate(context, s3_bucket, run_id, 'add_one.transform')
+
+
+@aws
+@nettest
+def test_s3_object_store():
+    run_id = str(uuid.uuid4())
+
+    # FIXME need a dedicated test bucket
+    object_store = S3ObjectStore(run_id=run_id, s3_bucket='dagster-airflow-scratch')
+    assert object_store.root == '/'.join(['dagster', 'runs', run_id, 'files'])
+
+    with yield_pipeline_execution_context(
+        PipelineDefinition([]), {}, RunConfig(run_id=run_id)
+    ) as context:
+        try:
+            object_store.set_object(True, context, Bool.inst(), ['true'])
+
+            assert object_store.has_object(context, ['true'])
+            assert object_store.get_object(context, Bool.inst(), ['true']) is True
+            assert object_store.url_for_paths(['true']).startswith('s3://')
+
+        finally:
+            object_store.rm_object(context, ['true'])

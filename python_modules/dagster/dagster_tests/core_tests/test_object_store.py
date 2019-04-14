@@ -21,8 +21,6 @@ from dagster.core.object_store import FileSystemObjectStore, TypeStoragePlugin
 from dagster.core.types.runtime import Bool, resolve_to_runtime_type, RuntimeType, String
 from dagster.utils import mkdir_p
 
-from ..marks import aws, nettest
-
 
 class UppercaseSerializationStrategy(SerializationStrategy):  # pylint: disable=no-init
     def serialize_value(self, _context, value, write_file_obj):
@@ -187,29 +185,6 @@ def test_file_system_object_store_composite_types_with_custom_serializer_for_inn
                 shutil.rmtree(object_store.root)
             except seven.FileNotFoundError:
                 pass
-
-
-@aws
-@nettest
-def test_s3_object_store():
-    run_id = str(uuid.uuid4())
-
-    # FIXME need a dedicated test bucket
-    object_store = S3ObjectStore(run_id=run_id, s3_bucket='dagster-airflow-scratch')
-    assert object_store.root == '/'.join(['dagster', 'runs', run_id, 'files'])
-
-    with yield_pipeline_execution_context(
-        PipelineDefinition([]), {}, RunConfig(run_id=run_id)
-    ) as context:
-        try:
-            object_store.set_object(True, context, Bool.inst(), ['true'])
-
-            assert object_store.has_object(context, ['true'])
-            assert object_store.get_object(context, Bool.inst(), ['true']) is True
-            assert object_store.url_for_paths(['true']).startswith('s3://')
-
-        finally:
-            object_store.rm_object(context, ['true'])
 
 
 def test_file_system_object_store_with_type_storage_plugin():
