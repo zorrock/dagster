@@ -455,7 +455,7 @@ def create_s3_object_store(run_config, environment_config, pipeline_def):
     except (ImportError, ModuleNotFoundError):
         raise check.CheckError(
             (
-                'In order to use dagster s3 storage you *must* dagster_aws installed '
+                'In order to use dagster s3 storage you *must* have dagster_aws installed '
                 'in you python environment'
             )
         )
