@@ -266,6 +266,8 @@ def test_using_s3_for_subplan(s3_bucket):
 def test_s3_object_store():
     run_id = str(uuid.uuid4())
 
+    from dagster.core.types.runtime import Bool
+
     # FIXME need a dedicated test bucket
     object_store = S3ObjectStore(run_id=run_id, s3_bucket='dagster-airflow-scratch')
     assert object_store.root == '/'.join(['dagster', 'runs', run_id, 'files'])
