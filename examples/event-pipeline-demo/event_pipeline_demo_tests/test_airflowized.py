@@ -9,7 +9,10 @@ from event_pipeline_demo.pipelines import define_event_ingest_pipeline
 
 
 class TestAirflowizedEventPipeline(object):
-    config_yaml = [script_relative_path('../environments/default.yml')]
+    config_yaml = [
+        script_relative_path('../environments/default.yml'),
+        script_relative_path('../environments/airflow.yml'),
+    ]
     pipeline = define_event_ingest_pipeline()
 
     # pylint: disable=redefined-outer-name
