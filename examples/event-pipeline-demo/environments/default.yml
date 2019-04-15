@@ -12,9 +12,6 @@ solids:
       target_folder: "/tmp/dagster/events/data"
   snowflake_load:
     config:
-      account: "<< SET ME >>"
-      user: "<< SET ME >>"
-      password: "<< SET ME >>"
       warehouse: "TINY_WAREHOUSE"
       database: "TESTDB"
       schema: "TESTSCHEMA"

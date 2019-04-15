@@ -1,5 +1,3 @@
-import pytest
-
 from dagster.utils import script_relative_path
 
 # pylint: disable=unused-import
@@ -12,9 +10,12 @@ class TestAirflowizedEventPipeline(object):
     config_yaml = [
         script_relative_path('../environments/default.yml'),
         script_relative_path('../environments/airflow.yml'),
+        script_relative_path('../environments/secrets.yml'),
     ]
     pipeline = define_event_ingest_pipeline()
 
     # pylint: disable=redefined-outer-name
-    def test_airflowized_event_pipeline(self, dagster_airflow_python_operator_pipeline):
+    def test_airflowized_event_pipeline(
+        self, secrets_yml, dagster_airflow_python_operator_pipeline
+    ):
         pass
