@@ -90,4 +90,3 @@ def test_no_spark_home():
     finally:
         if old_spark_home:
             os.environ['SPARK_HOME'] = old_spark_home
-
