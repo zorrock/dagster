@@ -41,7 +41,10 @@ def connect_with_fetchall_returning(value):
 @spark
 @mock.patch('snowflake.connector.connect', new_callable=create_mock_connector)
 def test_event_pipeline(snowflake_connect, spark_home):
-    config = load_yaml_from_globs(script_relative_path('../environments/default.yml'))
+    config = load_yaml_from_globs(
+        script_relative_path('../environments/default.yml'),
+        script_relative_path('../environments/secrets.yml'),
+    )
     result_pipeline = execute_pipeline(define_event_ingest_pipeline(), config)
     assert result_pipeline.success
 
