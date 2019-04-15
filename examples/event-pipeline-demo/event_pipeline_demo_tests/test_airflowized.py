@@ -16,6 +16,6 @@ class TestAirflowizedEventPipeline(object):
 
     # pylint: disable=redefined-outer-name
     def test_airflowized_event_pipeline(
-        self, secrets_yml, dagster_airflow_python_operator_pipeline
+        self, secrets_yml, dagster_airflow_python_operator_pipeline, spark_home
     ):
         pass
