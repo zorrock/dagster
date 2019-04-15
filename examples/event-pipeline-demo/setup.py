@@ -27,5 +27,5 @@ setup(
         'Operating System :: OS Independent',
     ],
     packages=find_packages(exclude=['test']),
-    install_requires=[],
+    install_requires=['dagster_aws', 'dagster_snowflake', 'dagster_spark'],
 )
