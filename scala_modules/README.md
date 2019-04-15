@@ -22,3 +22,9 @@ Use homebrew:
 
     brew install scala@2.11
     brew install sbt
+
+## Building the jars
+
+We use make:
+
+    make all
