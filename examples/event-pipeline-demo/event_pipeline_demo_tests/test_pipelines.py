@@ -1,6 +1,3 @@
-import os
-import subprocess
-
 import pandas as pd
 import pytest
 
@@ -40,6 +37,7 @@ def connect_with_fetchall_returning(value):
 # 1. Have CircleCI publish Scala/Spark jars when that code changes
 # 2. Ensure we have Spark available to CircleCI
 # 3. Include example / test data in this repository
+# pylint: disable=unused-argument
 @spark
 @mock.patch('snowflake.connector.connect', new_callable=create_mock_connector)
 def test_event_pipeline(snowflake_connect, spark_home):

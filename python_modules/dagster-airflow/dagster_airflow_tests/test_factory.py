@@ -1,8 +1,8 @@
+# pylint: disable=anomalous-backslash-in-string
 from __future__ import unicode_literals
 
 import datetime
 import json
-import os
 import re
 import uuid
 
@@ -28,6 +28,7 @@ class TestExecuteDagPythonFilesystemStorage(object):
     run_id = str(uuid.uuid4())
     execution_date = datetime.datetime.utcnow()
 
+    # pylint: disable=redefined-outer-name
     def test_execute_dag(self, dagster_airflow_python_operator_pipeline):
         expected_results = {
             'multiply_the_word': '"barbar"',
@@ -142,6 +143,7 @@ class TestExecuteDagContainerizedFilesystemStorage(object):
     op_kwargs = {'host_tmp_dir': '/tmp'}
     image = IMAGE
 
+    # pylint: disable=redefined-outer-name
     def test_execute_dag_containerized(self, dagster_airflow_docker_operator_pipeline):
         expected_results = {
             'multiply_the_word': '"barbar"',

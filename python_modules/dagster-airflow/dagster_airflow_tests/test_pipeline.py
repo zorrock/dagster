@@ -1,5 +1,3 @@
-import pytest
-
 from dagster import execute_pipeline
 from dagster.utils import load_yaml_from_glob_list, script_relative_path
 
