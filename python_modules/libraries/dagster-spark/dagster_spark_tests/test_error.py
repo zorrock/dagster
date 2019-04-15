@@ -67,17 +67,27 @@ solids:
 
 
 def test_no_spark_home():
-    if 'SPARK_HOME' in os.environ:
-        del os.environ['SPARK_HOME']
+    old_spark_home = None
+    try:
+        if 'SPARK_HOME' in os.environ:
+            old_spark_home = os.environ['SPARK_HOME']
+            del os.environ['SPARK_HOME']
 
-    spark_solid = SparkSolidDefinition('spark_solid', main_class='something')
-    pipeline = PipelineDefinition(solids=[spark_solid])
-    environment_dict = yaml.load(NO_SPARK_HOME_CONFIG_FILE.format(path=script_relative_path('.')))
+        spark_solid = SparkSolidDefinition('spark_solid', main_class='something')
+        pipeline = PipelineDefinition(solids=[spark_solid])
+        environment_dict = yaml.load(
+            NO_SPARK_HOME_CONFIG_FILE.format(path=script_relative_path('.'))
+        )
 
-    with pytest.raises(SparkSolidError) as exc_info:
-        execute_pipeline(pipeline, environment_dict)
+        with pytest.raises(SparkSolidError) as exc_info:
+            execute_pipeline(pipeline, environment_dict)
 
-    assert str(exc_info.value) == (
-        'No spark home set. You must either pass spark_home in config or set '
-        '$SPARK_HOME in your environment (got None).'
-    )
+        assert str(exc_info.value) == (
+            'No spark home set. You must either pass spark_home in config or set '
+            '$SPARK_HOME in your environment (got None).'
+        )
+
+    finally:
+        if old_spark_home:
+            os.environ['SPARK_HOME'] = old_spark_home
+
