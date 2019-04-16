@@ -51,7 +51,7 @@ geo_events = define_dagstermill_solid(
         'Geographic_Distribution_of_Recent_Events.ipynb',
     ),
     inputs=[InputDefinition('table_ready', Nothing)],
-    outputs=[OutputDefinition(Path, 'path')],
+    outputs=[OutputDefinition(Path, 'pdf_path')],
 )
 
 
