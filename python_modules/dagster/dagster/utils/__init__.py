@@ -80,12 +80,18 @@ def mkdir_p(path):
             raise
 
 
-def merge_dicts(left, right):
-    check.dict_param(left, 'left')
-    check.dict_param(right, 'right')
+def merge_dicts(*args):
+    if not args:
+        return {}
+    if len(args) == 1:
+        return args[0]
 
-    result = left.copy()
-    result.update(right)
+    for i, arg in enumerate(args):
+        check.dict_param(arg, 'argument {i}'.format(i=i))
+
+    result = args[0].copy()
+    for arg in args[1:]:
+        result.update(arg)
     return result
 
 
