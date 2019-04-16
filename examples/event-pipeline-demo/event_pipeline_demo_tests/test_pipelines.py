@@ -40,7 +40,7 @@ def connect_with_fetchall_returning(value):
 # pylint: disable=unused-argument
 @spark
 @mock.patch('snowflake.connector.connect', new_callable=create_mock_connector)
-def test_event_pipeline(snowflake_connect, spark_home):
+def test_event_pipeline(snowflake_connect, spark_home, secrets_yml):
     config = load_yaml_from_globs(
         script_relative_path('../environments/default.yml'),
         script_relative_path('../environments/secrets.yml'),
