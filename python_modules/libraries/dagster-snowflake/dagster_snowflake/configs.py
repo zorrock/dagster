@@ -11,7 +11,7 @@ def define_snowflake_config():
     account = Field(
         String,
         description='Your Snowflake account name. For more details, see  https://bit.ly/2FBL320.',
-        is_optional=True,
+        is_optional=False,
     )
 
     user = Field(String, description='User login name.', is_optional=False)
