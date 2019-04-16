@@ -1,7 +1,14 @@
 # Move this file to your Airflow dags directory (typically this is $AIRFLOW_HOME/dags) in order to
-# run the event ingest pipeline in Airflow. You should make sure that dagster_airflow and the
-# event_pipeline_demo are both installed in your Airflow environment, and you should edit
-# PATH_TO_CONFIG_YML to point at the event-pipeline-demo/environments directory.
+# run the event ingest pipeline in Airflow.
+#
+# Make sure that dagster_airflow and the event_pipeline_demo are both installed in the environment
+# in which you are running Airflow environment.
+#
+# Edit PATH_TO_CONFIG_YML to point at the event-pipeline-demo/environments directory.
+#
+# Set the environment variables SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, and SNOWFLAKE_PASSWORD
+# appropriately, or edit the secrets directly below.
+
 import os
 
 from dagster.utils import load_yaml_from_globs
