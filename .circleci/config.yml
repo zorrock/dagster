@@ -759,10 +759,6 @@ jobs:
             . build.sh
             popd
       - run:
-          name: Setup AIRFLOW_HOME
-          command: |
-            mkdir -p /home/circleci/airflow
-      - run:
           name: Install Dependencies
           command: |
             pyenv local 3.6.3
@@ -953,6 +949,11 @@ jobs:
             - "~/.ivy2/cache"
             - "~/.sbt"
             - "~/.m2"
+      - run:
+          name: Install pyspark
+          command: |
+            pip install pyspark
+            echo 'export SPARK_HOME=`pip show pyspark | grep Location | cut -d' ' -f2`' >> $BASH_ENV
       - run:
           name: Run Dagster Tests
           command: |
