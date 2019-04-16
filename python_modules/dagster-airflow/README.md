@@ -6,13 +6,11 @@ fully isolated containers.
 
 ### Compatibility
 
-Note that until [AIRFLOW-2876](https://github.com/apache/airflow/pull/3723) is resolved (landed on
-master and expected in 1.10.3), Airflow (and, as a consequence, dagster-airflow) is incompatible
-with Python 3.7.
+Note that Airflow versions less than 1.10.3 are incompatible with Python 3.7.
 
 # Requirements
 
-dagster-airflow requires an Airflow install.
+dagster-airflow requires an [Airflow install](https://airflow.apache.org/installation.html).
 
 In order to run containerized Dagster pipelines, you must have Docker running in your Airflow
 environment (as for the ordinary Airflow DockerOperator). You will also need to set S3 up to store
