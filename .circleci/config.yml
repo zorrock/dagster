@@ -950,9 +950,9 @@ jobs:
             - "~/.sbt"
             - "~/.m2"
       - run:
-          name: Install pyspark
+          name: Install pyspark & set SPARK_HOME
           command: |
-            pip install pyspark
+            sudo pip install pyspark
             echo 'export SPARK_HOME=`pip show pyspark | grep Location | cut -d' ' -f2`' >> $BASH_ENV
       - run:
           name: Run Dagster Tests
