@@ -1,0 +1,339 @@
+"steps":
+- "command": |-
+    pip install tox;
+    cd python_modules/dagster
+    tox -e py37
+  "label": |-
+    dagster tests (3.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.7
+- "command": |-
+    pip install tox;
+    cd python_modules/dagster
+    tox -e py36
+  "label": |-
+    dagster tests (3.6)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.6
+- "command": |-
+    pip install tox;
+    cd python_modules/dagster
+    tox -e py35
+  "label": |-
+    dagster tests (3.5)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.5
+- "command": |-
+    pip install tox;
+    cd python_modules/dagster
+    tox -e py27
+  "label": |-
+    dagster tests (2.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:2.7
+- "command": |-
+    apt-get update
+    apt-get install -y xdg-utils
+    pip install tox;
+    cd python_modules/dagit
+    tox -e py37
+  "label": |-
+    dagit tests (3.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.7
+- "command": |-
+    apt-get update
+    apt-get install -y xdg-utils
+    pip install tox;
+    cd python_modules/dagit
+    tox -e py36
+  "label": |-
+    dagit tests (3.6)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.6
+- "command": |-
+    apt-get update
+    apt-get install -y xdg-utils
+    pip install tox;
+    cd python_modules/dagit
+    tox -e py35
+  "label": |-
+    dagit tests (3.5)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.5
+- "command": |-
+    apt-get update
+    apt-get install -y xdg-utils
+    pip install tox;
+    cd python_modules/dagit
+    tox -e py27
+  "label": |-
+    dagit tests (2.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:2.7
+- "command": |-
+    pip install tox;
+    cd python_modules/dagster-graphql
+    tox -e py37
+  "label": |-
+    dagster-graphql tests (3.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.7
+- "command": |-
+    pip install tox;
+    cd python_modules/dagster-graphql
+    tox -e py36
+  "label": |-
+    dagster-graphql tests (3.6)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.6
+- "command": |-
+    pip install tox;
+    cd python_modules/dagster-graphql
+    tox -e py35
+  "label": |-
+    dagster-graphql tests (3.5)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.5
+- "command": |-
+    pip install tox;
+    cd python_modules/dagster-graphql
+    tox -e py27
+  "label": |-
+    dagster-graphql tests (2.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:2.7
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-pandas
+    tox -e py37
+  "label": |-
+    libraries/dagster-pandas tests (3.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.7
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-pandas
+    tox -e py36
+  "label": |-
+    libraries/dagster-pandas tests (3.6)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.6
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-pandas
+    tox -e py35
+  "label": |-
+    libraries/dagster-pandas tests (3.5)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.5
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-pandas
+    tox -e py27
+  "label": |-
+    libraries/dagster-pandas tests (2.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:2.7
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-ge
+    tox -e py37
+  "label": |-
+    libraries/dagster-ge tests (3.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.7
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-ge
+    tox -e py36
+  "label": |-
+    libraries/dagster-ge tests (3.6)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.6
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-ge
+    tox -e py35
+  "label": |-
+    libraries/dagster-ge tests (3.5)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.5
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-ge
+    tox -e py27
+  "label": |-
+    libraries/dagster-ge tests (2.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:2.7
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-aws
+    tox -e py37
+  "label": |-
+    libraries/dagster-aws tests (3.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.7
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-aws
+    tox -e py36
+  "label": |-
+    libraries/dagster-aws tests (3.6)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.6
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-aws
+    tox -e py35
+  "label": |-
+    libraries/dagster-aws tests (3.5)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.5
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-aws
+    tox -e py27
+  "label": |-
+    libraries/dagster-aws tests (2.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:2.7
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-snowflake
+    tox -e py37
+  "label": |-
+    libraries/dagster-snowflake tests (3.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.7
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-snowflake
+    tox -e py36
+  "label": |-
+    libraries/dagster-snowflake tests (3.6)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.6
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-snowflake
+    tox -e py35
+  "label": |-
+    libraries/dagster-snowflake tests (3.5)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.5
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-snowflake
+    tox -e py27
+  "label": |-
+    libraries/dagster-snowflake tests (2.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:2.7
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-spark
+    tox -e py37
+  "label": |-
+    libraries/dagster-spark tests (3.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.7
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-spark
+    tox -e py36
+  "label": |-
+    libraries/dagster-spark tests (3.6)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.6
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-spark
+    tox -e py35
+  "label": |-
+    libraries/dagster-spark tests (3.5)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.5
+- "command": |-
+    pip install tox;
+    cd python_modules/libraries/dagster-spark
+    tox -e py27
+  "label": |-
+    libraries/dagster-spark tests (2.7)
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:2.7
+- "command": |-
+    make dev_install
+    make pylint
+  "label": |-
+    Lint
+  "plugins":
+  - "docker#v3.1.0":
+      "image": |-
+        python:3.7
+

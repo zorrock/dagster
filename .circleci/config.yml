@@ -60,7 +60,6 @@ workflows:
       - library-dagster-pandas-py27:
           context: coveralls
 
-
       - library-dagster-ge-py37:
           context: coveralls
       - library-dagster-ge-py36:
