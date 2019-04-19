@@ -1,0 +1,3 @@
+repository:
+  file: pandas_hello_world/__init__.py
+  fn: define_pandas_repository

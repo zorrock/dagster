@@ -45,7 +45,7 @@ Supporting Libraries:
 - **dagster-pyspark**: A Dagster integration with Pyspark.
 - **dagster-snowflake**: A Dagster integration with Snowflake.
 - **dagster-spark**: A Dagster integration with Spark.
-
+    
 Example Projects:
 
 - **airline-demo**: A substantial demo project illustrating how these tools can be used together
