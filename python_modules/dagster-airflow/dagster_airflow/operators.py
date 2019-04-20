@@ -7,12 +7,14 @@ import sys
 from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager
 
+from packaging import version
 from six import string_types, with_metaclass
 
 from airflow.exceptions import AirflowException
 from airflow.operators.docker_operator import DockerOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.file import TemporaryDirectory
+from airflow.version import version as airflow_version
 from docker import APIClient, from_env
 
 from dagster import seven
@@ -164,19 +166,24 @@ class ModifiedDockerOperator(DockerOperator):
             self.environment['AIRFLOW_TMP_DIR'] = self.tmp_dir
             self.volumes.append('{0}:{1}'.format(host_tmp_dir, self.tmp_dir))
 
+            host_config = {
+                'binds': self.volumes,
+                'network_mode': self.network_mode,
+                'cpu_shares': int(round(self.cpus * 1024)),
+                'mem_limit': self.mem_limit,
+            }
+
+            if version.parse(airflow_version) >= version.parse('1.10.1'):
+                host_config = dict(
+                    **host_config,
+                    auto_remove=self.auto_remove,  # pylint: disable=no-member
+                    dns=self.dns,  # pylint: disable=no-member
+                    dns_search=self.dns_search  # pylint: disable=no-member
+                )
             self.container = self.cli.create_container(
                 command=self.get_command(),
                 environment=self.environment,
-                host_config=self.cli.create_host_config(
-                    auto_remove=self.auto_remove,
-                    binds=self.volumes,
-                    network_mode=self.network_mode,
-                    shm_size=self.shm_size,
-                    dns=self.dns,
-                    dns_search=self.dns_search,
-                    cpu_shares=int(round(self.cpus * 1024)),
-                    mem_limit=self.mem_limit,
-                ),
+                host_config=self.cli.create_host_config(**host_config),
                 image=self.image,
                 user=self.user,
                 working_dir=self.working_dir,
